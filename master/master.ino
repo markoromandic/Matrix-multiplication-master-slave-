@@ -61,9 +61,9 @@ bool readMatrix(){
        while(!Serial.available());
        *element++ = Serial.parseInt();
        Serial.print("i, j: ");
-       Serial.print(i);
+       Serial.print(i + 1);
        Serial.print(" ");
-       Serial.println(j);
+       Serial.println(j + 1);
     }
   }
   
@@ -94,9 +94,9 @@ bool readMatrix(){
        while(!Serial.available());
        *element++ = Serial.parseInt();
        Serial.print("i, j: ");
-       Serial.print(i);
+       Serial.print(i + 1);
        Serial.print(" ");
-       Serial.println(j);
+       Serial.println(j + 1);
     }
   }
 
@@ -122,28 +122,68 @@ bool seperateTasks(){
   for(byte i = 0; i < 128;  i++){
     if(slaves[i]){
       sendSecondMatrix(i);
-      
+
       rows_to_send = f_matrix + slaveNum * rows_per_slave * x1;
+
+      slaveNum++;
       
-//      sendTask(i, rows_to_send);
+      if(slaveNum == numSlaves){
+        rows_per_slave += y1%numSlaves;
+        Serial.print("ROWS: ");
+        Serial.println(rows_per_slave);
+        if(sendTask(i, rows_to_send, rows_per_slave))
+          return true;
+        Serial.println("FALSE");
+        return false;
+      }
+      if(!sendTask(i, rows_to_send, rows_per_slave))
+        return false;
     }
   }
+
+  return false;
 }
 
-bool sendTask(byte adresa, int *p_matrix, int numBytes){
-  
-  return true;
+bool sendTask(byte adress, int *p_matrix, int numRows){
+  Wire.beginTransmission(adress);
+  Wire.write(MATRIX_FIRST);
+
+  sendInt(numRows);
+
+  sendInt(x1);
+
+  for(int i = 0; i < numRows * x1; i++)
+    sendInt(*p_matrix++);
+
+  Wire.endTransmission(adress);
+
+  Wire.requestFrom(adress, 1);
+
+  byte id = Wire.read();
+
+  if(id == MATRIX_FIRST)
+    return true;
+  return false;
 }
 
-bool sendSecondMatrix(byte adress){
+void sendInt(int number){
+  Wire.write(number);
+  Wire.write(number>>8);
+}
+
+void  sendSecondMatrix(byte adress){
     Wire.beginTransmission(adress);
     Wire.write(MATRIX_SECOND);
+    
     Wire.write(x2);
+    Wire.write(x2>>8);
+    
     Wire.write(y2);
+    Wire.write(y2>>8);
+    
     for(int i = 0; i < x2 * y2; i++){
-      int val = *s_matrix;
-      Wire.write(val);
-      s_matrix++;
+      Wire.write(*s_matrix);
+      Wire.write((*s_matrix++>>8));
     }
     Wire.endTransmission();
 }
@@ -157,7 +197,6 @@ byte pingSlave(byte adresa){
 
   byte id = Wire.read();
 
-  
   if(id == PING){
     Serial.print("ID: ");
     Serial.println(id);

@@ -5,6 +5,7 @@ typedef enum commands_
   PING,
   STATUS,
   MATRIX_SECOND,
+  MATRIX_FIRST,
   UNKNOWN_C,
 }commands;
 
