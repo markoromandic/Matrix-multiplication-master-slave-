@@ -6,7 +6,6 @@
 
 byte current_command;
 
-volatile int progress;
 volatile int idRow;
 volatile int elementsSent = 0;
 int *f_matrix;
@@ -23,7 +22,7 @@ void setup() {
   pinMode(GREEN_LED, OUTPUT);
   pinMode(RED_LED, OUTPUT);
   
-  Wire.begin(9);
+  Wire.begin(8);
   Wire.onReceive(recieveEvent);
   Wire.onRequest(requestEvent);
   Serial.begin(115200);
@@ -47,7 +46,7 @@ ISR(TIMER1_COMPA_vect){
   static bool on = false;
   static byte counter = 0;
 
-  if(counter++ < 10 - progress / 10)
+  if(counter++ < 10)
     return;
   counter = 0;
   digitalWrite(GREEN_LED, on);
@@ -77,14 +76,10 @@ void calculateMatrix(){
 
     pr_matrix = r_matrix;
 
-   int totalJob = row1 * col2 * row2;
-   
    for(int i = 0; i < row1; i++)
       for(int j = 0; j < col2; j++){
-        for(int k = 0; k < row2; k++){
-          progress = i * j * k * 100 / totalJob;
+        for(int k = 0; k < row2; k++)
           *pr_matrix += (long)f_matrix[i * col1 + k] * (long)s_matrix[k * col2 + j];
-        }
         pr_matrix++;
       }
 
@@ -100,6 +95,7 @@ void recieveEvent(int howMany){
         Serial.println("PING");
         break;
       case MATRIX_FIRST_INFO:
+        Serial.println("MATRIX_FIRST_INFO");
         row1 = readInt();
         col1 = readInt();
         idRow = readInt();
@@ -107,16 +103,19 @@ void recieveEvent(int howMany){
         bp_matrix = f_matrix;
         break;
       case MATRIX_FIRST_EL:
-        putElementInMatrix(row1, col1); 
+        Serial.println("MATRIX_FIRST_EL");
+        buildMatrix(row1, col1); 
         break;
       case MATRIX_SECOND_INFO:
+        Serial.println("MATRIX_SECOND_INFO");
         row2 = readInt();
         col2 = readInt();
         s_matrix = malloc(row2 * col2 * sizeof(int));
         bp_matrix = s_matrix;
         break;
       case MATRIX_SECOND_EL:
-        putElementInMatrix(row2, col2);
+        Serial.println("MATRIX_SECOND_EL");
+        buildMatrix(row2, col2);
         break;
       case STATUS:
         Serial.println("STATUS");
@@ -127,14 +126,41 @@ void recieveEvent(int howMany){
       case TAKE_MATRIX:
         Serial.println("TAKE_MATRIX");
         break;
+      case SEND_MATRIX_INFO:{
+        Serial.println("SEND_MATRIX_INFO");
+        byte id_c = Wire.read();
+        if(id_c == MATRIX_FIRST){
+          Serial.println("MATRIX_FIRST_INFO");
+          row1 = readInt();
+          col1 = readInt();
+          idRow = readInt();
+          f_matrix = malloc(col1 * row1 * sizeof(int));
+        }
+        else if(id_c == MATRIX_SECOND){
+          Serial.println("MATRIX_SECOND_INFO");
+          row2 = readInt();
+          col2 = readInt();
+          s_matrix = malloc(col2 * row2 * sizeof(int));
+        }
+        break;
+      }
       case UNKNOWN_C:
         Serial.println("UNKNOWN");
         break;
-      }
+     }
 }
 
-void putElementInMatrix(int row, int col){
+void buildMatrix(int row, int col){
+//  for(int i = 0; i < row * col; i++)
     *bp_matrix++ = readInt();
+//  static int elementsRead = 0;
+//  int elementsToRead = row * col;
+//  int val = elementsToRead - elementsRead < 14 ?elementsToRead - elementsRead:14;
+//  p_matrix += elementsRead;
+//  for(int i = 0; i < val; i++){
+//    *p_matrix++ = readInt();
+//    elementsRead++;
+//  }
 }
 
 void printMatrix(int row, int col, int *p_matrix){
@@ -217,10 +243,8 @@ void pingResponse(){
 void statusResponse(){
   if(status_c)
     Wire.write(WORKING);
-  else{
+  else
     Wire.write(FINISHED);
-    progress = 0;    
-  }
 }
 
 void finishedResponse(){
