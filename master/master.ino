@@ -20,26 +20,28 @@ void setup() {
 void loop() {
   findSlaves();
   if(readMatrix()){
-//    printMatrix(col1, row1, f_matrix);
-//    printMatrix(col2, row2, s_matrix);
     seperateTasks();
     free(f_matrix);
-//    printMatrix(row2, col2, s_matrix);
     free(s_matrix);
     buildResultMatrix();
     while(!finished){
+      byte status_s = 0;
       for(byte i = 0; i < 128; i++){
         if(slaves[i]){
           if(checkStatus(i)){
-            getBackMatrix(i);
-            finished = 1;
+            status_s += getBackMatrix(i);
+            byte address = requestJobLeftSize(i);
+            getBackHalfOfJob(address);
           }
           delay(10);
         }
       }
+      if(status_s == row1)
+        finished = 1;
     }
-    printMatrix(row1, col2, r_matrix);
   }
+
+  printMatrix(row1, col2, r_matrix);
 
   delay(500);
 }
@@ -190,6 +192,7 @@ bool sendTask(byte address, int *p_matrix, int row, int col){
 }
 
 bool sendTask(byte address, int *p_matrix, int row, int col, int idRow){
+  status_s++;
   Wire.beginTransmission(address);
 
   Wire.write(MATRIX_FIRST_INFO);
@@ -209,7 +212,7 @@ bool sendTask(byte address, int *p_matrix, int row, int col, int idRow){
 
   Wire.requestFrom(address, 1);
     
-  if(SUCCESFULLY_SENT == Wire.read())
+  if(SUCCESSFULLY_SENT == Wire.read())
      return true; 
   return false;
 }
@@ -259,7 +262,7 @@ bool checkStatus(byte address){
   }
 }
 
-bool getBackMatrix(byte address){
+int getBackMatrix(byte address){
   Wire.beginTransmission(address);
   Wire.write(TAKE_MATRIX_INFO);
   Wire.endTransmission();
@@ -267,7 +270,7 @@ bool getBackMatrix(byte address){
   Wire.requestFrom(address, 5);
 
   if(!Wire.read() == SEND_MATRIX_INFO)
-    return false;
+    return 0;
 
   int row = readInt();
   int id_r = readInt();
@@ -283,19 +286,83 @@ bool getBackMatrix(byte address){
   long *p_matrix = r_matrix;
   
   p_matrix += id_r * col2;
-  
+   
   while(bytesToRecieve > bytesReceieved){
     int val = bytesToRecieve-bytesReceieved<32?bytesToRecieve-bytesReceieved:32;
-
+    
     Wire.requestFrom(address, val);
     
     for(int i = 0; i < (val)/4; i++)
       *p_matrix++ = readLong();
       
     bytesReceieved += 32;
+  } 
+  return row;
+}  
+
+byte requestJobLeftSize(byte skipAddress){
+  int max = -1;
+  byte addressOfMax = 0;
+  for(byte i = 0; i < 128; i++){
+    if(skipAddress != i)
+      if(slaves[i]){
+        Wire.beginTransmission(i);
+        Wire.write(REQUEST_STATUS_NUM);
+        Wire.endTransmission();
+
+        Wire.requestFrom(i, 3);
+
+        if(Wire.read() != REQUEST_STATUS_NUM)
+          return;
+
+        int slaveLeftJobNum = readInt();
+
+        if(max < slaveLeftJobNum){
+          max = slaveLeftJobNum;
+          addressOfMax = i;
+        }
+      }
   }
-  return true;
+
+  return max;
 }
+
+bool getBackHalfOfJob(byte address){
+  Wire.beginTransmission(address);
+  Wire.write(REQUEST_JOB);
+  Wire.endTransmission();
+
+  Wire.requestFrom(address, 5);
+
+  if(!Wire.read() == SEND_MATRIX_INFO)
+    return false;
+
+  int row = readInt();
+  int id_r = readInt();
+  
+  Wire.beginTransmission(address);
+  Wire.write(STEAL_JOB);
+  Wire.endTransmission();
+
+  int bytesToRecieve = row * col1 * sizeof(int);
+
+  int bytesReceieved = 0;
+
+  long *t_matrix = malloc(bytesToRecieve);
+  
+  while(bytesToRecieve > bytesReceieved){
+    int val = bytesToRecieve-bytesReceieved<32?bytesToRecieve-bytesReceieved:32;
+    
+    Wire.requestFrom(address, val);
+    
+    for(int i = 0; i < (val)/4; i++)
+      *t_matrix++ = readInt();
+      
+    bytesReceieved += 32;
+  } 
+
+  return sendTask(address, t_matrix, row, col1, id_r);
+}  
 
 void buildResultMatrix(){
   r_matrix = malloc(row2 * col1 * sizeof(long));

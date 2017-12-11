@@ -8,6 +8,7 @@ byte current_command;
 
 volatile int progress;
 volatile int idRow;
+volatile int numRowsLeft;
 volatile int elementsSent = 0;
 int *f_matrix;
 int *bp_matrix;
@@ -79,14 +80,17 @@ void calculateMatrix(){
 
    int totalJob = row1 * col2 * row2;
    
-   for(int i = 0; i < row1; i++)
-      for(int j = 0; j < col2; j++){
+   for(int i = 0; i < row1; i++){
+    numRowsLeft--;
+    for(int j = 0; j < col2; j++){
         for(int k = 0; k < row2; k++){
           progress = i * j * k * 100 / totalJob;
           *pr_matrix += (long)f_matrix[i * col1 + k] * (long)s_matrix[k * col2 + j];
         }
         pr_matrix++;
       }
+   }
+      
 
     Serial.println("TUJ SAM");
     status_c = 0;
@@ -101,13 +105,14 @@ void recieveEvent(int howMany){
         break;
       case MATRIX_FIRST_INFO:
         row1 = readInt();
+        numRowsLeft = row1;
         col1 = readInt();
         idRow = readInt();
         f_matrix = malloc(row1 * col1 * sizeof(int));
         bp_matrix = f_matrix;
         break;
       case MATRIX_FIRST_EL:
-        putElementInMatrix(row1, col1); 
+        putElementInMatrix(); 
         break;
       case MATRIX_SECOND_INFO:
         row2 = readInt();
@@ -116,7 +121,7 @@ void recieveEvent(int howMany){
         bp_matrix = s_matrix;
         break;
       case MATRIX_SECOND_EL:
-        putElementInMatrix(row2, col2);
+        putElementInMatrix();
         break;
       case STATUS:
         Serial.println("STATUS");
@@ -127,13 +132,22 @@ void recieveEvent(int howMany){
       case TAKE_MATRIX:
         Serial.println("TAKE_MATRIX");
         break;
+      case REQUEST_STATUS_NUM:
+        Serial.println("REQUEST_STATUS_NUM");
+        break;
+      case REQUEST_JOB:
+        Serial.println("REQUEST_JOB");
+        break;
+      case STEAL_JOB:
+        Serial.println("STEAL_JOB");
+        break;
       case UNKNOWN_C:
         Serial.println("UNKNOWN");
         break;
       }
 }
 
-void putElementInMatrix(int row, int col){
+void putElementInMatrix(){
     *bp_matrix++ = readInt();
 }
 
@@ -184,10 +198,44 @@ void requestEvent(){
       case TAKE_MATRIX:
         sendMatrix();
         break;
+      case REQUEST_STATUS_NUM:
+        sendJobLeft();
+        break;
+      case REQUEST_JOB:
+        sendThiefJobRowsInfo();
+        break;
+      case STEAL_JOB:
+        steal();
+        break;
       case UNKNOWN_C:
         Serial.println("UNKNOWN");
         break;
   }
+}
+
+void steal(){
+  int elementsToSend = numRowsLeft / 2 * col1;
+
+  int val = elementsToSend-elementsSent<16?elementsToSend-elementsSent:16;
+  
+  for(int i = 0; i < val; i++){
+    sendInt(*bp_matrix++);
+    elementsSent++;
+  }
+}
+
+void sendThiefJobRowsInfo(){
+  Wire.write(SEND_MATRIX_INFO);
+  sendInt(numRowsLeft / 2);
+  sendInt(row1 - numRowsLeft);
+  bp_matrix = f_matrix;
+  bp_matrix += (row1 - numRowsLeft) * col1;
+  row1 -= numRowsLeft / 2;
+}
+
+void sendJobLeft(){
+  Wire.write(REQUEST_STATUS_NUM);
+  sendInt(numRowsLeft);
 }
 
 void sendMatrixInfo(){
@@ -224,7 +272,7 @@ void statusResponse(){
 }
 
 void finishedResponse(){
-  Wire.write(SUCCESFULLY_SENT);
+  Wire.write(SUCCESSFULLY_SENT);
 }
 
 int readInt(){
