@@ -94,63 +94,63 @@ _________
 _________
 ### COMMUNICATION EXAMPLE:
 
-Master → Slave I | PING
-Master ← Slave I | PING
-Master → Slave II | PING
-Master ← Slave II | PING
-Master → Slave I | MATRIX_FIRST_INFO + INTEGER + INTEGER + INTEGER
-Master → Slave I | MATRIX_FIRST_EL + INTEGER
-Master → Slave I | MATRIX_FIRST_EL + INTEGER
-Master ← Slave I | SUCCESSFULLY_SENT
-Master → Slave I | MATRIX_SECOND_INFO + INTEGER + INTEGER
-Master → Slave I | MATRIX_SECOND_EL + INTEGER
-Master → Slave I | MATRIX_SECOND_EL + INTEGER
-Master → Slave I | MATRIX_SECOND_EL + INTEGER
-Master → Slave I | MATRIX_SECOND_EL + INTEGER
-Master ← Slave I | SUCCESSFULLY_SENT
-Master → Slave II | MATRIX_FIRST_INFO + INTEGER + INTEGER + INTEGER
-Master → Slave II | MATRIX_FIRST_EL + INTEGER
-Master → Slave II | MATRIX_FIRST_EL + INTEGER
-Master → Slave II | MATRIX_SECOND_INFO + INTEGER + INTEGER
-Master → Slave II | MATRIX_SECOND_EL + INTEGER
-Master → Slave II | MATRIX_SECOND_EL + INTEGER
-Master → Slave II | MATRIX_SECOND_EL + INTEGER
-Master → Slave II | MATRIX_SECOND_EL + INTEGER
-Master ← Slave II | SUCCESSFULLY_SENT
-Master → Slave I | STATUS
-Master ← Slave I | WORKING
-Master → Slave II | STATUS
-Master ← Slave II | WORKING
-Master → Slave I | STATUS
-Master ← Slave I | FINISHED
-Master → Slave I | TAKE_MATRIX_INFO
-Master ← Slave I | SEND_MATRIX_INFO
-Master ← Slave I | INTEGER + INTEGER
-Master → Slave II | REQUEST_STATUS_NUM
-Master ← Slave II | REQUEST_STATUS_NUM + INTEGER
-Master → Slave II | REQUEST_JOB
-Master ← Slave II | SEND_MATRIX_INFO + INTEGER + INTEGER
-Master → Slave II | STEAL_MATRIX
-Master ← Slave II | INTEGER + INTEGER
-Master → Slave I | MATRIX_FIRST_INFO + INTEGER + INTEGER + INTEGER
-Master → Slave I | MATRIX_FIRST_EL
-Master → Slave I | MATRIX_FIRST_EL
-Master ← Slave I | SUCCESSFULLY_SENT
-Master → Slave II| STATUS
-Master ← Slave II| WORKING
-Master → Slave I | STATUS
-Master ← Slave I | FINISHED
-Master → Slave I | TAKE_MATRIX_INFO
-Master ← Slave I | SEND_MATRIX_INFO
-Master ← Slave I | INTEGER + INTEGER
-Master → Slave II | REQUEST_STATUS_NUM
-Master ← Slave II | REQUEST_STATUS_NUM + INTEGER
-Master → Slave II | STATUS
-Master ← Slave II | FINISHED
-Master → Slave II | TAKE_MATRIX_INFO
-Master ← Slave II | SEND_MATRIX_INFO
-Master ← Slave II | INTEGER + INTEGER
-Master → Slave I | REQUEST_STATUS_NUM
-Master ← Slave I | REQUEST_STATUS_NUM + INTEGER
-Master → Slave I | PING
-Master → Slave II | PING
+Master → Slave I | PING<br>
+Master ← Slave I | PING<br>
+Master → Slave II | PING<br>
+Master ← Slave II | PING<br>
+Master → Slave I | MATRIX_FIRST_INFO + INTEGER + INTEGER + INTEGER<br>
+Master → Slave I | MATRIX_FIRST_EL + INTEGER<br>
+Master → Slave I | MATRIX_FIRST_EL + INTEGER<br>
+Master ← Slave I | SUCCESSFULLY_SENT<br>
+Master → Slave I | MATRIX_SECOND_INFO + INTEGER + INTEGER<br>
+Master → Slave I | MATRIX_SECOND_EL + INTEGER<br>
+Master → Slave I | MATRIX_SECOND_EL + INTEGER<br>
+Master → Slave I | MATRIX_SECOND_EL + INTEGER<br>
+Master → Slave I | MATRIX_SECOND_EL + INTEGER<br>
+Master ← Slave I | SUCCESSFULLY_SENT<br>
+Master → Slave II | MATRIX_FIRST_INFO + INTEGER + INTEGER + INTEGER<br>
+Master → Slave II | MATRIX_FIRST_EL + INTEGER<br>
+Master → Slave II | MATRIX_FIRST_EL + INTEGER<br>
+Master → Slave II | MATRIX_SECOND_INFO + INTEGER + INTEGER<br>
+Master → Slave II | MATRIX_SECOND_EL + INTEGER<br>
+Master → Slave II | MATRIX_SECOND_EL + INTEGER<br>
+Master → Slave II | MATRIX_SECOND_EL + INTEGER<br>
+Master → Slave II | MATRIX_SECOND_EL + INTEGER<br>
+Master ← Slave II | SUCCESSFULLY_SENT<br>
+Master → Slave I | STATUS<br>
+Master ← Slave I | WORKING<br>
+Master → Slave II | STATUS<br>
+Master ← Slave II | WORKING<br>
+Master → Slave I | STATUS<br>
+Master ← Slave I | FINISHED<br>
+Master → Slave I | TAKE_MATRIX_INFO<br>
+Master ← Slave I | SEND_MATRIX_INFO<br>
+Master ← Slave I | INTEGER + INTEGER<br>
+Master → Slave II | REQUEST_STATUS_NUM<br>
+Master ← Slave II | REQUEST_STATUS_NUM + INTEGER<br>
+Master → Slave II | REQUEST_JOB<br>
+Master ← Slave II | SEND_MATRIX_INFO + INTEGER + INTEGER<br>
+Master → Slave II | STEAL_MATRIX<br>
+Master ← Slave II | INTEGER + INTEGER<br>
+Master → Slave I | MATRIX_FIRST_INFO + INTEGER + INTEGER + INTEGER<br>
+Master → Slave I | MATRIX_FIRST_EL<br>
+Master → Slave I | MATRIX_FIRST_EL<br>
+Master ← Slave I | SUCCESSFULLY_SENT<br>
+Master → Slave II| STATUS<br>
+Master ← Slave II| WORKING<br>
+Master → Slave I | STATUS<br>
+Master ← Slave I | FINISHED<br>
+Master → Slave I | TAKE_MATRIX_INFO<br>
+Master ← Slave I | SEND_MATRIX_INFO<br>
+Master ← Slave I | INTEGER + INTEGER<br>
+Master → Slave II | REQUEST_STATUS_NUM<br>
+Master ← Slave II | REQUEST_STATUS_NUM + INTEGER<br>
+Master → Slave II | STATUS<br>
+Master ← Slave II | FINISHED<br>
+Master → Slave II | TAKE_MATRIX_INFO<br>
+Master ← Slave II | SEND_MATRIX_INFO<br>
+Master ← Slave II | INTEGER + INTEGER<br>
+Master → Slave I | REQUEST_STATUS_NUM<br>
+Master ← Slave I | REQUEST_STATUS_NUM + INTEGER<br>
+Master → Slave I | PING<br>
+Master → Slave II | PING<br>
