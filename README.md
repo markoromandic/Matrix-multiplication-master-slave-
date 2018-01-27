@@ -153,4 +153,4 @@ Master ← Slave II | INTEGER + INTEGER<br>
 Master → Slave I | REQUEST_STATUS_NUM<br>
 Master ← Slave I | REQUEST_STATUS_NUM + INTEGER<br>
 Master → Slave I | PING<br>
-Master → Slave II | PING<br>
+Master → Slave II | PING
